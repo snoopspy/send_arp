@@ -24,15 +24,6 @@ GNetIntf* getBestInterface() {
 }
 
 GMac getMac(GNetIntf* myIntf, GIp ip) {
-  if (!pcap.active()) {
-    pcap.dev_ = myIntf->name_;
-    pcap.autoRead_ = false;
-    if (!pcap.open()) {
-      qCritical() << pcap.err;
-      exit(-1);
-    }
-  }
-
   uint8_t buf[sizeof(GEthHdr) + sizeof(GArpHdr)];
   GEthHdr* ethHdr = (GEthHdr*)buf;
   ethHdr->ether_dhost = GMac::broadcastMac();
@@ -98,6 +89,15 @@ int main(int argc, char *argv[])
     exit(-1);
   }
   senderIp = argv[1];
+
+  if (!pcap.active()) {
+    pcap.dev_ = intf->name_;
+    pcap.autoRead_ = false;
+    if (!pcap.open()) {
+      qCritical() << pcap.err;
+      exit(-1);
+    }
+  }
 
   senderMac = getMac(intf, senderIp);
   if (senderMac.isClean()) {
